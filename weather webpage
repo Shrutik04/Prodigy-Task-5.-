@@ -1,0 +1,264 @@
+// html code 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stellar Weather App</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="jo.css">
+</head>
+
+<body>
+    <div class="container">
+        <h1>✨ Smart Weather Forecast</h1>
+        <div class="search-box">
+            <input type="text" id="city" placeholder="Enter city name..." class="city-input">
+            <button onclick="getWeather()" class="search-btn">Search</button>
+            <button onclick="getLocationWeather()" class="location-btn">My Location</button>
+        </div>
+        <div id="weatherResult" class="weather-card">
+            <p class="initial-message">Search for a city or use your location to see the weather.</p>
+        </div>
+    </div>
+    <script src="ram.js"></script>
+</body>
+
+</html>
+
+
+// css code 
+
+
+/* General Styling */
+body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #1f2833, #0b0c0f); /* Dark, subtle gradient background */
+    color: #c5c6c7; /* Light text color for contrast */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.container {
+    max-width: 500px;
+    width: 100%;
+    padding: 40px;
+    background: rgba(197, 198, 199, 0.05); /* Slightly transparent dark background */
+    border-radius: 20px;
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+    backdrop-filter: blur(8px); /* Glassmorphism effect */
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    text-align: center;
+    transition: transform 0.3s ease-in-out;
+}
+
+.container:hover {
+    transform: translateY(-5px); /* Subtle hover lift on the card */
+}
+
+h1 {
+    color: #66fcf1; /* Accent color for the title */
+    margin-bottom: 30px;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+/* Search Box and Input */
+.search-box {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 30px;
+}
+
+.city-input {
+    flex-grow: 1;
+    padding: 12px 15px;
+    border: none;
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.2);
+    color: #fff;
+    font-size: 16px;
+    transition: all 0.3s;
+    outline: none;
+}
+
+.city-input::placeholder {
+    color: #aaa;
+}
+
+.city-input:focus {
+    background: rgba(0, 0, 0, 0.4);
+    box-shadow: 0 0 0 2px #45a29e;
+}
+
+/* Buttons and Hover Effects */
+.search-btn,
+.location-btn {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    transition: all 0.3s ease-in-out;
+    outline: none;
+}
+
+.search-btn {
+    background: #45a29e; /* Main button color */
+    color: #1f2833;
+    flex-basis: 100px;
+}
+
+.location-btn {
+    background: transparent;
+    border: 2px solid #66fcf1; /* Secondary accent color */
+    color: #66fcf1;
+    flex-basis: 150px;
+}
+
+.search-btn:hover {
+    background: #5ab6b0;
+    transform: scale(1.05) translateY(-2px); /* Scale and slight lift */
+    box-shadow: 0 4px 15px rgba(69, 162, 158, 0.5);
+}
+
+.location-btn:hover {
+    background: #66fcf1;
+    color: #1f2833;
+    transform: scale(1.05) translateY(-2px);
+    box-shadow: 0 4px 15px rgba(102, 252, 241, 0.5);
+}
+
+/* Weather Result Card */
+.weather-card {
+    margin-top: 25px;
+    padding: 30px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 15px;
+    min-height: 150px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.5s ease;
+}
+
+.weather-card h2 {
+    color: #66fcf1;
+    font-size: 28px;
+    margin-bottom: 5px;
+}
+
+.weather-card p {
+    font-size: 18px;
+    margin: 8px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 400;
+}
+
+.weather-card p strong {
+    font-weight: 600;
+    color: #fff;
+}
+
+.initial-message {
+    font-size: 16px;
+    color: #aaa;
+}
+
+/* Responsive adjustments */
+@media (max-width: 450px) {
+    .container {
+        padding: 20px;
+    }
+
+    .search-btn,
+    .location-btn {
+        flex-basis: 100%; /* Stack buttons on smaller screens */
+    }
+}
+
+
+// javascript code
+
+const apiKey = "78e37788515c42b793a710090a9aa2e5"; // Keep your existing API key
+
+async function getWeather() {
+    const city = document.getElementById("city").value.trim();
+    if (!city) {
+        document.getElementById("weatherResult").innerHTML = '<p class="initial-message">Please enter a city name.</p>';
+        return;
+    }
+    fetchWeatherData(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`);
+}
+
+function getLocationWeather() {
+    if (navigator.geolocation) {
+        // Display loading state while waiting for permission/location
+        document.getElementById("weatherResult").innerHTML = '<p class="initial-message">Finding your location...</p>';
+
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
+                fetchWeatherData(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric`);
+            },
+            () => {
+                document.getElementById("weatherResult").innerHTML = '<p class="initial-message">Location access denied or failed to retrieve location.</p>';
+            }
+        );
+    } else {
+        document.getElementById("weatherResult").innerHTML = '<p class="initial-message">Geolocation not supported by this browser.</p>';
+    }
+}
+
+async function fetchWeatherData(url) {
+    const weatherResultDiv = document.getElementById("weatherResult");
+    weatherResultDiv.innerHTML = '<p class="initial-message">Loading weather data...</p>'; // Loading state
+
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data.cod !== 200) {
+            weatherResultDiv.innerHTML = `<p class="initial-message">Error: ${data.message}</p>`;
+            return;
+        }
+
+        // Extract required data
+        const { name, sys: { country }, main: { temp, humidity }, weather, wind: { speed } } = data;
+        const condition = weather[0].description;
+        const iconCode = weather[0].icon;
+        const iconUrl = `http://openweathermap.org/img/wn/${iconCode}@2x.png`;
+
+        // Update the UI with the attractive format
+        weatherResultDiv.innerHTML = `
+            <h2>${name}, ${country}</h2>
+            <div class="weather-icon-container">
+                <img src="${iconUrl}" alt="${condition}" class="weather-icon">
+                <p class="condition-text">${condition.charAt(0).toUpperCase() + condition.slice(1)}</p>
+            </div>
+            <p>🌡 Temperature: <strong>${Math.round(temp)}°C</strong></p>
+            <p>💧 Humidity: <strong>${humidity}%</strong></p>
+            <p>🌬 Wind Speed: <strong>${speed} m/s</strong></p>
+        `;
+        
+        // Add subtle animation class after content loads
+        weatherResultDiv.classList.add('fade-in');
+        setTimeout(() => weatherResultDiv.classList.remove('fade-in'), 500);
+
+    } catch (error) {
+        weatherResultDiv.innerHTML = '<p class="initial-message">An error occurred while fetching data.</p>';
+    }
+}
